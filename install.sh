@@ -314,9 +314,8 @@ build_and_install_modules() {
 }
 
 # ================= 安装 lotspeedctl (Go 控制器) =================
-# 薄包装把绝大多数子命令转给它, 所以它是运行时依赖。仓库里没有提交预编译二进制,
-# 只能本机 go build, 或按 README 在本地交叉编译后 scp 过来。取不到不是致命错误:
-# 卸载序列 (lotspeed uninstall) 完全不依赖 lotspeedctl。
+# 薄包装把绝大多数子命令转给它, 所以它是运行时依赖。
+# 优先本机 go build；若无 go 环境，自动从本地 bin/ 目录或 GitHub 拉取预编译二进制包。
 install_lotspeedctl() {
     local src=""
     if [[ -d "$SRC_DIR/lotspeedctl" ]]; then
@@ -329,10 +328,28 @@ install_lotspeedctl() {
     fi
     if [[ -n "$src" ]] && command -v go >/dev/null 2>&1 \
        && (cd "$src" && CGO_ENABLED=0 go build -o /usr/local/bin/lotspeedctl .); then
-        log_success "lotspeedctl -> /usr/local/bin/lotspeedctl"; return 0
+        log_success "lotspeedctl -> /usr/local/bin/lotspeedctl (源码编译完成)"; return 0
     fi
     [[ -x /usr/local/bin/lotspeedctl ]] && { log_info "沿用已存在的 lotspeedctl"; return 0; }
-    log_warn "未安装 lotspeedctl (本机无 go, 仓库也没有预编译二进制)。请在开发机上:"
+
+    # 优先看本地安装源中是否带有预编译二进制
+    if [[ -f "$SRC_DIR/bin/lotspeedctl-linux-amd64" ]]; then
+        cp "$SRC_DIR/bin/lotspeedctl-linux-amd64" /usr/local/bin/lotspeedctl
+        chmod 755 /usr/local/bin/lotspeedctl
+        log_success "lotspeedctl -> /usr/local/bin/lotspeedctl (本地预编译包安装成功)"
+        return 0
+    fi
+
+    # 尝试从 GitHub 仓库自动下载预编译包
+    local bin_url="${RAW_BASE}/bin/lotspeedctl-linux-amd64"
+    log_info "本机无 Go 环境，尝试从 GitHub 下载预编译包: ${bin_url}"
+    if curl -fsSL "$bin_url" -o /usr/local/bin/lotspeedctl 2>/dev/null; then
+        chmod 755 /usr/local/bin/lotspeedctl
+        log_success "lotspeedctl -> /usr/local/bin/lotspeedctl (GitHub 预编译包下载成功)"
+        return 0
+    fi
+
+    log_warn "未安装 lotspeedctl (本机无 go 且预编译包下载失败)。请在开发机上手动编译后 scp 过来:"
     log_warn "  cd lotspeedctl && GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o lotspeedctl ."
     log_warn "  scp lotspeedctl root@<host>:/usr/local/bin/"
 }
