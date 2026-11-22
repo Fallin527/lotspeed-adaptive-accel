@@ -1,23 +1,24 @@
 #!/bin/bash
 #
 # LotSpeed v2.2 + NeoQ v3.1 - installer / bootstrapper
-# Author: uk0 @ 2025
-# GitHub: https://github.com/uk0/lotspeed
+# Original Author: uk0 @ 2025
+# Upstream GitHub: https://github.com/uk0/lotspeed
+# Maintained by: Fallin527 (https://github.com/Fallin527/lotspeed-adaptive-accel)
 #
 # 这个脚本只做引导: 依赖检查 -> 取源码 -> 编译 -> 安装 -> sysctl -> systemd。
 # 日常运维全部由 lotspeedctl (Go, 有 80 个测试) 负责; /usr/local/bin/lotspeed
 # 只是一层薄包装, 见 install_wrapper()。
 #
 # Usage:
-#   curl -fsSL https://raw.githubusercontent.com/uk0/lotspeed/adaptive-accel/install.sh | sudo bash
+#   curl -fsSL https://raw.githubusercontent.com/Fallin527/lotspeed-adaptive-accel/main/install.sh | sudo bash
 #   sudo bash install.sh [--iface ens3] [--force-kernel] [--with-legacy-autotune]
 #
 
 set -e
 
 # ================= 配置区域 =================
-GITHUB_REPO="uk0/lotspeed"
-GITHUB_BRANCH="adaptive-accel"
+GITHUB_REPO="Fallin527/lotspeed-adaptive-accel"
+GITHUB_BRANCH="main"
 RAW_BASE="https://raw.githubusercontent.com/${GITHUB_REPO}/refs/heads/${GITHUB_BRANCH}"
 INSTALL_DIR="/opt/lotspeed"
 VERSION="2.2"

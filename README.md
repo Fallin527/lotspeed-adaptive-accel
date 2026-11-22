@@ -1,7 +1,12 @@
 ### lotspeed adaptive-accel — 自适应加速分支
 
+> **上游原项目**：[uk0/lotspeed](https://github.com/uk0/lotspeed)（特别致敬原作者 uk0）  
+> **本分支维护**：[Fallin527/lotspeed-adaptive-accel](https://github.com/Fallin527/lotspeed-adaptive-accel)  
+> **分支特性**：在保留原版全部自适应流控能力的基础上，彻底修复了用户态控制器 `lotspeedctl` 在高并发代理出口下的内存泄漏（切片钉死导致的 SWAP 暴涨与 OOM），并增加了 Cgroup v2 纵深防护。
+>
 > CC 抗丢包 + NeoQ 行为化调度 + lotspeedctl 学习闭环 + hist 短流加速。全部特性在真实洲际链路上 A/B 验证（见 [CHANGELOG](CHANGELOG.md) 与下方测试报告）。
 
+* **原项目地址**：https://github.com/uk0/lotspeed
 * 前置条件 `kernel 6.18.2-bbrv3 or later`
 
 
@@ -25,7 +30,7 @@
 > 这一节只讲最短路径。
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/uk0/lotspeed/refs/heads/adaptive-accel/install.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/Fallin527/lotspeed-adaptive-accel/refs/heads/main/install.sh | sudo bash
 ```
 
 脚本只做引导:依赖检查 → 取源码 → 编译 → 安装 → sysctl → systemd。日常运维全部交给
